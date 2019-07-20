@@ -24,7 +24,7 @@ def main():
     month = datetime.now().month
 
     # Set up user agents to prevent IP ban
-    # TODO:
+    # TODO:  Figure out how to get around Captcha
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36'}
     #page = requests.get(url, headers=headers)
 
@@ -34,12 +34,10 @@ def main():
     # Read HTML from a file I made
     #r = open("B071JPD9M3-page.txt", "r+")
     #productRawHTML = r.read()
+    
+    # TODO: Read ASIN and Cost from input CSV
 
-    # Read ASIN and Cost from input CSV
-    # TODO:
-
-    # Create output CSV file
-    # TODO:
+    # TODO:  Create output CSV file
 
     # Store data in an output variable
     data = []
@@ -89,51 +87,51 @@ def main():
 
     # BBP
     BBP = getBBP(productHTML)
-    print("BBP = {}".format(BBP))
+    print("BBP = " + BBP)
 
     # Num Reviews
     reviews = getReviews(productHTML)
-    print("Reviews = {}".format(reviews))
+    print("Reviews = " + reviews)
 
     # Category
     category = getCategory(productHTML)
-    print("Category = {}".format(category))
+    print("Category = " + category)
 
     # Best Sellers Rank
     rank = getBSR(productHTML, category)
-    print("Rank = {}".format(rank))
+    print("Rank = " + rank)
 
     # Number of Prime Sellers and condition = new
     FBA = getFBASellers(listingsHTML)
-    print("Number of prime sellers = {}".format(FBA))
+    print("Number of prime sellers = " + FBA)
 
     # Bool sold by Amazon
     amazon = isSoldByAmazon(listingsHTML)
-    print("Sold by Amazon = {}".format(amazon))
+    print("Sold by Amazon = " + amazon)
 
     # Shipping weight
     shipping_weight = getWeight(productHTML)
-    print('Weight = {}'.format(shipping_weight))
+    print("Weight = " + shipping_weight)
 
     # Dimensions (dimensions on the product page are often different than that on the fee calc)
     dimensions = getDimension(productHTML)
-    print("Dimensions = {}".format(dimensions))
+    print("Dimensions = " + dimensions)
 
     # Size category (not in output)
     sizeCategory = getSizeCat(shipping_weight, dimensions)
-    print("Size category = {}".format(sizeCategory))
+    print("Size category = " + sizeCategory)
 
     # Fulfillment fee (not in output)
     fulfillmentFee = getFBAFees(shipping_weight, sizeCategory)
-    print("Fulfillment Fees = {}".format(fulfillmentFee))
+    print("Fulfillment Fees = " + fulfillmentFee)
 
     # Storage fee (not in output)
     storageFee = getStorageFees(sizeCategory, dimensions, month)
-    print("Storage Fees = {}".format(storageFee))
+    print("Storage Fees = " + storageFee)
 
     # Referral fee (not in output)
     referralFee = getReferralFee(BBP, category)
-    print("Referral Fees = {}".format(referralFee))
+    print("Referral Fees = " + referralFee)
 
     # Total fees
     totalFees = sumFees(fulfillmentFee, storageFee, referralFee)
@@ -141,11 +139,11 @@ def main():
     # Calculate Profit
     cost = float(cost)
     profit = getProfit(BBP, cost, fulfillmentFee, storageFee, referralFee)
-    print("Profit = {}".format(profit))
+    print("Profit = " + profit)
 
     # Calculate profit margin
     margin = getMargin(profit, BBP)
-    print("margin = {}".format(margin))
+    print("margin = " + margin)
 
     # Indicate if errors are from IP ban
     IP_indicator = "Sorry, we just need to make sure you're not a robot."
@@ -162,6 +160,7 @@ def main():
     # Append row to end of output CSV
     data.append(row)
 
+    
 # -- Functions --
 def sumFees(fulfillmentFee, storageFee, referralFee):
     """
@@ -178,6 +177,8 @@ def sumFees(fulfillmentFee, storageFee, referralFee):
     except:
         total = "N/A"
     return total
+
+
 def getMargin(profit, price):
     """
     Calculates profit margin using profit / price * 100.
@@ -191,6 +192,7 @@ def getMargin(profit, price):
     except:
         margin = "N/A"
     return margin
+
 
 def getProfit(price, cost, fulfillmentFee, storageFee, referralFee):
     """
@@ -208,6 +210,7 @@ def getProfit(price, cost, fulfillmentFee, storageFee, referralFee):
     except:
         profit = "N/A"
     return profit
+
 
 def getReferralFee(price, cat):
     """
@@ -307,6 +310,7 @@ def getReferralFee(price, cat):
         fee = "N/A"
     return fee
 
+
 def getStorageFees(size, dim, month):
     """
     Calculates referral fees based on product size and dimensions and the month of the year.
@@ -349,6 +353,7 @@ def getStorageFees(size, dim, month):
     except:
         fee = "N/A"
     return fee
+
 
 def getFBAFees(weight, size):
     """
@@ -398,6 +403,7 @@ def getFBAFees(weight, size):
     except:
         fee = "N/A"
     return fee
+
 
 def getSizeCat(weight, dim):
     """
@@ -458,6 +464,7 @@ def getSizeCat(weight, dim):
         size = "N/A"
     return size
 
+
 def getDimension(page):
     """
     Scrapes the dimensions of the product in inches using regex.  Goes line by line checking if it's reached the
@@ -499,6 +506,7 @@ def getDimension(page):
         dim = ['N/A', 'N/A', 'N/A']
     return dim
 
+
 def getTitle(page):
     """
     Scrapes the product page for the name/title of the product listing
@@ -517,6 +525,7 @@ def getTitle(page):
         title = "N/A"
     return title
 
+
 def getCategory(page):
     """
     Scrapes the product page for the product's broadest category using regex in the form: "in ____ (See top 100)".
@@ -533,6 +542,7 @@ def getCategory(page):
         category = "N/A"
     return category
 
+
 def getReviews(page):
     """
     Scrapes the product page for the number of reviews on the product using regex.  Removes the commas from the
@@ -547,6 +557,7 @@ def getReviews(page):
     except:
         reviews = "N/A"
     return reviews
+
 
 def getBBP(page):
     """
@@ -566,6 +577,7 @@ def getBBP(page):
             BBP = "N/A"
     return BBP
 
+
 def getBSR(page, cat):
     """
     Scrapes the product listing page for the best seller's rank using regex in the form "#__ in [category]".  Strips
@@ -582,6 +594,7 @@ def getBSR(page, cat):
     except:
         rank = "N/A"
     return rank
+
 
 def getWeight(page):
     """
@@ -615,8 +628,8 @@ def getWeight(page):
         weight = weight * lb_in_kg
     return weight
 
-# -- Listings Page functions --
 
+# -- Listings Page functions --
 def getFBASellers(page):
     """
     Scrapes the listing page for the number of prime sellers selling new based on the number of occurances of the
@@ -631,6 +644,7 @@ def getFBASellers(page):
     numPrimeSellers = counter(page,primeIdentifier)
     return numPrimeSellers
 
+
 def isSoldByAmazon(page):
     """
     Scrapes the listing page for the number of Amazon logos found next to the Amazon.com seller name.  Returns
@@ -644,6 +658,7 @@ def isSoldByAmazon(page):
     if counter(page, identifier) > 0:
         soldByAmazon = True
     return soldByAmazon
+
 
 # Method to count the number of times a substring is found in a string
 def counter(string, substring):
@@ -662,6 +677,7 @@ def counter(string, substring):
         if string[i:i + substring_size] == substring:
             count += 1
     return count
+
 
 if __name__ == '__main__':
     main()
